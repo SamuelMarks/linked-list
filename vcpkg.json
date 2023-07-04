@@ -1,0 +1,14 @@
+{
+  "name": "linked-list",
+  "version-string": "0.0.1",
+  "port-version": 1,
+  "homepage": "https://github.com/SamuelMarks/linked-list",
+  "description": "Frontend for C, concentrating on: generation from code; single-file analysis; modification; and emission (to C code).",
+  "dependencies": [
+    "c-str-span",
+    {
+      "name": "c89stringutils",
+      "platform": "windows"
+    }
+  ]
+}

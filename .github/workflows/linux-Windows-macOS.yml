@@ -1,0 +1,67 @@
+name: Linux, Windows, macOS
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    name: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: mkdir
+        run: mkdir build
+
+      - name: Cache vcpkg
+        id: cache-vcpkg
+        uses: actions/cache@v2
+        with:
+          path: vcpkg
+          key: ${{ runner.os }}-${{ hashFiles('**/vcpkg.json') }}-project0-2
+
+      - name: checkout vcpkg
+        uses: actions/checkout@v2
+        with:
+          repository: "offscale/vcpkg"
+          ref: project0
+          path: vcpkg
+        if: steps.cache-vcpkg.outputs.cache-hit != 'true'
+
+      - name: Setup vcpkg (Windows)
+        run: vcpkg\bootstrap-vcpkg.bat
+        shell: cmd
+        if: matrix.os == 'windows-latest'
+
+      - name: Setup vcpkg (non-Windows)
+        run: ./vcpkg/bootstrap-vcpkg.sh
+        if: matrix.os != 'windows-latest'
+
+      - name: configure (with vcpkg on Windows)
+        working-directory: ./build
+        run: |
+          cmake -DCMAKE_TOOLCHAIN_FILE="..\vcpkg\scripts\buildsystems\vcpkg.cmake" ..
+        shell: cmd
+        if: matrix.os == 'windows-latest'
+
+      - name: configure (with vcpkg on non-Windows)
+        working-directory: ./build
+        run: |
+          cmake -DCMAKE_TOOLCHAIN_FILE="../vcpkg/scripts/buildsystems/vcpkg.cmake" ..
+        if: matrix.os != 'windows-latest'
+
+      - name: build
+        working-directory: ./build
+        run: cmake --build .
+
+      - name: test
+        working-directory: ./build
+        run: ctest -C Debug --rerun-failed --output-on-failure .

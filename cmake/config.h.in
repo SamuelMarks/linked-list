@@ -1,0 +1,9 @@
+#ifndef C_LLONFIG_H
+#define C_LLONFIG_H
+
+#define LL_VERSION_MAJOR @ll_VERSION_MAJOR@
+#define LL_VERSION_MINOR @ll_VERSION_MINOR@
+#define LL_VERSION_PATCH @ll_VERSION_PATCH@
+#define LL_VERSION       "@ll_VERSION@"
+
+#endif /* !C_LLONFIG_H */
