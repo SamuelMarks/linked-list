@@ -6,37 +6,66 @@
 #include <ll.h>
 
 TEST x_size_t_ll() {
-  struct size_t_elem *full_ll = NULL;
-  struct size_t_elem **ll_cur_ptr = &full_ll, *iter;
+  struct ll_size_t_list *my_size_t_ll;
 
-  struct size_t_list *ll = malloc(sizeof *ll);
-
-  const size_t l[] = {5, 6, 10, 44};
+  static const size_t values[] = {5, 6, 10, 44};
   size_t i;
-  struct size_t_elem **result = malloc(sizeof **result);
+  int rc = EXIT_SUCCESS;
+  {
+    my_size_t_ll = malloc(sizeof *my_size_t_ll);
+    if (my_size_t_ll == NULL)
+      return ENOMEM;
+    struct ll_size_t_elem **current_pointer = &my_size_t_ll->ll;
+    struct ll_size_t_elem *iterator;
 
-  ll->size = 0;
+    for (i = 0; i < sizeof values / sizeof *values; ++i) {
+      rc = ll_size_t_list_append(my_size_t_ll, current_pointer, values[i]);
+      if (rc != EXIT_SUCCESS)
+        goto cleanup;
+    }
 
-  for (i = 0; i < sizeof l / sizeof l[0]; i++)
-    ASSERT_EQ(size_t_list_push(&ll->size, &ll_cur_ptr, l[i], &result),
-              EXIT_SUCCESS);
+    ASSERT_EQ(i, 4);
+    ASSERT_EQ(i, my_size_t_ll->n);
 
-  ll->list = full_ll;
+    for (i = 0, iterator = my_size_t_ll->ll; iterator != NULL;
+         iterator = iterator->next, ++i)
+      ASSERT_EQ(iterator->value, values[i]);
+  }
 
-  ASSERT_EQ(i, 4);
+  ASSERT_EQ(i, sizeof values / sizeof *values);
 
-  for (iter = (struct size_t_elem *)ll->list, i = 0; iter != NULL;
-       iter = iter->next, i++)
-    ASSERT_EQ(iter->lu, l[i]);
+  {
+    size_t *my_size_t_arr = NULL, *my_size_t_iterator;
+    ll_size_t_list_to_arr(&my_size_t_ll, &my_size_t_arr);
 
-  ASSERT_EQ(i, sizeof l / sizeof l[0]);
+    for (i = 0; i < sizeof values / sizeof *values; ++i)
+      ASSERT_EQ(my_size_t_arr[i], values[i]);
 
-  size_t_list_cleanup(ll);
+    ASSERT_EQ(i, 4);
 
-  ASSERT_EQ(ll->list, NULL);
-  ASSERT_EQ(ll->size, 0);
+    for (i = 0, my_size_t_iterator = my_size_t_arr; my_size_t_iterator != NULL;
+         my_size_t_iterator++, ++i) {
+      printf("*my_size_t_iterator (%ld) == values[%ld] (%ld)\n",
+             *my_size_t_iterator, i, values[i]);
+      ASSERT_EQ(*my_size_t_iterator, values[i]);
+    }
+    ASSERT_EQ(i, 4);
 
-  PASS();
+    free(my_size_t_arr);
+  }
+
+cleanup:
+  ll_size_t_cleanup(&my_size_t_ll);
+  ASSERT_EQ(my_size_t_ll, NULL);
+  /* return rc; */
+
+  switch (rc) {
+  case EXIT_SUCCESS:
+    PASS();
+    break;
+  default:
+    FAIL();
+  }
 }
 
 TEST x_az_span_ll() {

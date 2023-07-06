@@ -36,67 +36,72 @@ int ll_push_str(size_t *const ll_n, struct str_elem ***ll_root,
  * `size_t`
  */
 
-struct size_t_elem **size_t_list_end(struct size_t_elem **size_t_elem) {
-  while (*size_t_elem)
-    size_t_elem = &(*size_t_elem)->next;
-  return size_t_elem;
+struct ll_size_t_elem **ll_size_t_elem_get_end(struct ll_size_t_elem **head) {
+  while (*head)
+    head = &(*head)->next;
+  return head;
 }
 
-int size_t_list_prepend(struct size_t_elem **size_t_elem, const size_t lu,
-                        struct size_t_elem ***result) {
-  if (*size_t_elem == NULL) {
-    *result = NULL;
-    return EINVAL;
-  }
-
-  {
-    struct size_t_elem *new_size_t_elem = malloc(sizeof *new_size_t_elem);
-    if (new_size_t_elem == NULL) {
-      *result = NULL;
-      return ENOMEM;
-    }
-
-    new_size_t_elem->lu = lu;
-    new_size_t_elem->next = *size_t_elem;
-    *size_t_elem = new_size_t_elem;
-    *result = &new_size_t_elem->next;
-  }
+int ll_size_t_elem_prepend(struct ll_size_t_elem **head, size_t value) {
+  struct ll_size_t_elem *new_elem = malloc(sizeof *new_elem);
+  if (new_elem == NULL)
+    return ENOMEM;
+  new_elem->value = value, new_elem->next = *head;
+  *head = new_elem;
   return EXIT_SUCCESS;
 }
 
-int size_t_list_append(struct size_t_elem **p, const size_t lu,
-                       struct size_t_elem ***result) {
-  return size_t_list_prepend(size_t_list_end(p), lu, result);
+int ll_size_t_elem_append(struct ll_size_t_elem **head, size_t value) {
+  return ll_size_t_elem_prepend(ll_size_t_elem_get_end(head), value);
 }
 
-int size_t_list_push(uint32_t *ll_n, struct size_t_elem ***ll_root,
-                     const size_t lu, struct size_t_elem ***result) {
-  int rc = size_t_list_append(*ll_root, lu, result);
-  if (rc != EXIT_SUCCESS) {
-    rc = size_t_list_append(*ll_root, lu, ll_root);
-    if (rc == EXIT_SUCCESS)
-      (*ll_n)++;
+void ll_size_t_elem_cleanup(struct ll_size_t_elem **head) {
+  struct ll_size_t_elem *current = *head;
+  while (current != NULL) {
+    struct ll_size_t_elem *tmp = current;
+    current = current->next;
+    free(tmp);
   }
+  *head = NULL;
+}
+
+int ll_size_t_list_append(struct ll_size_t_list *sized_linked_list,
+                          struct ll_size_t_elem **cursor, size_t value) {
+  int rc = ll_size_t_elem_append(cursor, value);
+  if (rc == EXIT_SUCCESS)
+    sized_linked_list->n++;
   return rc;
 }
 
-void size_t_elem_cleanup(struct size_t_elem **size_t_elem) {
-  if (*size_t_elem == NULL)
-    return;
-  struct size_t_elem *cur = *size_t_elem;
-  while (cur != NULL) {
-    struct size_t_elem *tmp = cur;
-    cur = cur->next;
-    free(tmp);
-  }
-  *size_t_elem = NULL;
+int ll_size_t_list_prepend(struct ll_size_t_list *sized_linked_list,
+                           struct ll_size_t_elem **head, size_t value) {
+  int rc = ll_size_t_elem_prepend(head, value);
+  if (rc == EXIT_SUCCESS)
+    sized_linked_list->n++;
+  return rc;
 }
 
-void size_t_list_cleanup(struct size_t_list *size_t_ll) {
-  struct size_t_elem *list = (struct size_t_elem *)size_t_ll->list;
-  size_t_elem_cleanup(&list);
-  size_t_ll->list = NULL;
-  size_t_ll->size = 0;
+void ll_size_t_cleanup(struct ll_size_t_list **list) {
+  ll_size_t_elem_cleanup(&(*list)->ll);
+  (*list)->ll = NULL, (*list)->n = 0;
+  free(*list);
+  *list = NULL;
+}
+
+int ll_size_t_list_to_arr(struct ll_size_t_list **list, size_t **arr) {
+  *arr = malloc(sizeof arr * (*list)->n + 1);
+  if (arr == NULL)
+    return ENOMEM;
+  {
+    struct ll_size_t_elem *iterator;
+    size_t i;
+
+    for (iterator = (*list)->ll, i = 0; iterator != NULL;
+         iterator = iterator->next, i++)
+      (*arr)[i] = iterator->value;
+    arr[i + 1] = NULL;
+  }
+  return EXIT_SUCCESS;
 }
 
 /*

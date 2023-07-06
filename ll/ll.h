@@ -41,31 +41,39 @@ extern LL_EXPORT int ll_push_str(size_t *ll_n, struct str_elem ***ll_root,
  * `size_t`
  */
 
-struct size_t_elem {
-  size_t lu;
-  struct size_t_elem *next;
+struct ll_size_t_elem {
+  size_t value;
+  struct ll_size_t_elem *next;
 };
 
-/* List structure requiring manual bookkeeping for size */
-struct size_t_list {
-  uint32_t size;
-  const struct size_t_elem *list;
+struct ll_size_t_list {
+  size_t n;
+  struct ll_size_t_elem *ll;
 };
 
-extern LL_EXPORT struct size_t_elem **size_t_list_end(struct size_t_elem **);
+extern LL_EXPORT struct ll_size_t_elem **
+ll_size_t_elem_get_end(struct ll_size_t_elem **head);
 
-extern LL_EXPORT int size_t_list_prepend(struct size_t_elem **, size_t,
-                                         struct size_t_elem ***);
+extern LL_EXPORT int ll_size_t_elem_prepend(struct ll_size_t_elem **head,
+                                            size_t value);
 
-extern LL_EXPORT int size_t_list_append(struct size_t_elem **, size_t,
-                                        struct size_t_elem ***);
+extern LL_EXPORT int ll_size_t_elem_append(struct ll_size_t_elem **head,
+                                           size_t value);
 
-extern LL_EXPORT int size_t_list_push(uint32_t *, struct size_t_elem ***,
-                                      size_t, struct size_t_elem ***);
+extern LL_EXPORT void ll_size_t_elem_cleanup(struct ll_size_t_elem **head);
 
-extern LL_EXPORT void size_t_elem_cleanup(struct size_t_elem **);
+extern LL_EXPORT int
+ll_size_t_list_append(struct ll_size_t_list *sized_linked_list,
+                      struct ll_size_t_elem **cursor, size_t value);
 
-extern LL_EXPORT void size_t_list_cleanup(struct size_t_list *);
+extern LL_EXPORT int
+ll_size_t_list_prepend(struct ll_size_t_list *sized_linked_list,
+                       struct ll_size_t_elem **head, size_t value);
+
+extern LL_EXPORT void ll_size_t_cleanup(struct ll_size_t_list **list);
+
+extern LL_EXPORT int ll_size_t_list_to_arr(struct ll_size_t_list **list,
+                                           size_t **arr);
 
 /*
  * `az_span`
