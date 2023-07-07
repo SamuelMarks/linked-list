@@ -52,28 +52,23 @@ struct ll_size_t_list {
 };
 
 extern LL_EXPORT struct ll_size_t_elem **
-ll_size_t_elem_get_end(struct ll_size_t_elem **head);
+ll_size_t_elem_get_end(struct ll_size_t_elem **);
 
-extern LL_EXPORT int ll_size_t_elem_prepend(struct ll_size_t_elem **head,
-                                            size_t value);
+extern LL_EXPORT int ll_size_t_elem_prepend(struct ll_size_t_elem **, size_t);
 
-extern LL_EXPORT int ll_size_t_elem_append(struct ll_size_t_elem **head,
-                                           size_t value);
+extern LL_EXPORT int ll_size_t_elem_append(struct ll_size_t_elem **, size_t);
 
-extern LL_EXPORT void ll_size_t_elem_cleanup(struct ll_size_t_elem **head);
+extern LL_EXPORT void ll_size_t_elem_cleanup(struct ll_size_t_elem **);
 
-extern LL_EXPORT int
-ll_size_t_list_append(struct ll_size_t_list *sized_linked_list,
-                      struct ll_size_t_elem **cursor, size_t value);
+extern LL_EXPORT int ll_size_t_list_append(struct ll_size_t_list *, size_t);
 
-extern LL_EXPORT int
-ll_size_t_list_prepend(struct ll_size_t_list *sized_linked_list,
-                       struct ll_size_t_elem **head, size_t value);
+extern LL_EXPORT int ll_size_t_list_prepend(struct ll_size_t_list *, size_t);
 
-extern LL_EXPORT void ll_size_t_cleanup(struct ll_size_t_list **list);
+extern LL_EXPORT void ll_size_t_cleanup(struct ll_size_t_list *);
 
-extern LL_EXPORT int ll_size_t_list_to_arr(struct ll_size_t_list **list,
-                                           size_t **arr);
+extern LL_EXPORT int ll_size_t_list_to_arr(struct ll_size_t_list *, size_t ***);
+
+extern LL_EXPORT void arr_size_t_cleanup(size_t **);
 
 /*
  * `az_span`
